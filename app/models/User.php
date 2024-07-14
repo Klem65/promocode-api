@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -48,6 +49,21 @@ class User extends ActiveRecord implements IdentityInterface
             'access_token' => 'Access Token',
             'created_at' => 'Created At',
         ];
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function beforeValidate()
+    {
+        if (parent::beforeValidate()) {
+            if ($this->isNewRecord && empty($this->code)) {
+                $this->access_token = Yii::$app->security->generateRandomString();
+                $this->created_at = time();
+            }
+            return true;
+        }
+        return false;
     }
 
     public static function findIdentity($id)
